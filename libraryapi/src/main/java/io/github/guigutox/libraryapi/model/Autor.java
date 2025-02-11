@@ -14,6 +14,7 @@ import java.util.UUID;
 @Table(name="autor", schema = "public")
 @Data
 @ToString(exclude = "livros")
+
 public class Autor {
 
     @Deprecated
@@ -38,5 +39,7 @@ public class Autor {
     @OneToMany(mappedBy = "autor") //Serve para carregar uma lista com todos os livros do autor
     @Transient
     private List<Livro> livros;
+
+
 
 }
