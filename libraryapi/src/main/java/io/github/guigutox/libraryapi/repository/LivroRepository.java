@@ -23,6 +23,7 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
     //Select * from livro where id_autor = id
     //List<Livro> findByAutor(String titulo);
 
+    boolean existsByAutor (Autor autor);
 
     List<Livro> findByTitulo(String titulo);
     List<Livro> findByIsbn(String isbn);

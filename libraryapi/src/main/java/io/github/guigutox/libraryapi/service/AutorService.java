@@ -2,6 +2,9 @@ package io.github.guigutox.libraryapi.service;
 
 import io.github.guigutox.libraryapi.model.Autor;
 import io.github.guigutox.libraryapi.repository.AutorRepository;
+import io.github.guigutox.libraryapi.repository.LivroRepository;
+import io.github.guigutox.libraryapi.validator.AutorValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,16 +12,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AutorService {
 
     private final AutorRepository repository;
+    private final AutorValidator validator;
+    private final LivroRepository livroRepository;
 
-    public AutorService(AutorRepository repository){
-        this.repository = repository;
-    }
 
 
     public Autor salvar(Autor autor){
+        validator.validar(autor);
         return repository.save(autor);
     }
 
@@ -27,6 +31,7 @@ public class AutorService {
             throw new IllegalArgumentException("O id do autor não pode ser nulo");
 
         }
+        validator.validar(autor);
         repository.save(autor);
     }
 
@@ -35,6 +40,10 @@ public class AutorService {
     }
 
     public void deletar(Autor autor){
+        if(possuiLivros(autor)){
+            throw new IllegalArgumentException("Não é permitido excluir autores que tem livros cadastrados! O autor possui livros cadastrados!");
+        }
+
         repository.delete(autor);
     }
 
@@ -48,6 +57,10 @@ public class AutorService {
         } else {
             return repository.findAll();
         }
+    }
+
+    public boolean possuiLivros(Autor autor){
+        return livroRepository.existsByAutor(autor);
     }
 
 }

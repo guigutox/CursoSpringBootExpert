@@ -41,7 +41,7 @@ public class Livro {
         fetch = FetchType.LAZY //LAZY= ele buscará apenas os dados do livro e não trará do autor EAGER= serve para que quando for buscar um livro, ele busque o autor tambem
     )
 
-    @JoinColumn(name = "autor_id")
+    @JoinColumn(name = "id_autor")
     private Autor autor;
 
 

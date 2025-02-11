@@ -2,13 +2,18 @@ package io.github.guigutox.libraryapi.controller;
 
 
 import io.github.guigutox.libraryapi.controller.dto.AutorDTO;
+import io.github.guigutox.libraryapi.controller.dto.ErroResposta;
+import io.github.guigutox.libraryapi.exceptions.OperacaoNaoPermitidaException;
+import io.github.guigutox.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.guigutox.libraryapi.model.Autor;
 import io.github.guigutox.libraryapi.service.AutorService;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ObjectStreamClass;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -18,33 +23,37 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/autores")
 // http://host:8080/autores
-
+@RequiredArgsConstructor
 public class AutorController {
 
     private final AutorService service;
 
-    public AutorController(AutorService service) {
-        this.service = service;
-    }
 
     @PostMapping
-    public ResponseEntity<Void> salvar(@RequestBody AutorDTO autor){
-            Autor autorEntidade = autor.mapearParaAutor();
-            service.salvar(autorEntidade);
+    public ResponseEntity<Object> salvar(@RequestBody AutorDTO autor){
+    try{
+        Autor autorEntidade = autor.mapearParaAutor();
+        service.salvar(autorEntidade);
 
         //http://host:8080/autores/{id}
-       URI location = ServletUriComponentsBuilder
+        URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(autorEntidade.getId())
                 .toUri();
 
-            return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
+
+    }catch (RegistroDuplicadoException e){
+        var erroDTO = ErroResposta.conflito(e.getMessage());
+        return ResponseEntity.status(erroDTO.status()).body(erroDTO);
+    }
+
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AutorDTO> obterDetalhes(@PathVariable("id") String id){
+    public ResponseEntity<Object> obterDetalhes(@PathVariable("id") String id){
         var idAutor = UUID.fromString(id);
         Optional<Autor> autorOptional = service.obterPorId(idAutor);
         if(autorOptional.isPresent()){
@@ -57,16 +66,22 @@ public class AutorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable("id") String id){
-        var idAutor = UUID.fromString(id);
-        Optional<Autor> autorOptional = service.obterPorId(idAutor);
+    public ResponseEntity<Object> deletar(@PathVariable("id") String id){
+        try {
+            var idAutor = UUID.fromString(id);
+            Optional<Autor> autorOptional = service.obterPorId(idAutor);
 
-        if(autorOptional.isEmpty()){
-            return ResponseEntity.notFound().build();
+            if (autorOptional.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            service.deletar(autorOptional.get());
+            return ResponseEntity.noContent().build();
+        }catch (OperacaoNaoPermitidaException e){
+            var erroResposta = ErroResposta.respostaPadrao(e.getMessage());
+            return ResponseEntity.status(erroResposta.status()).body(erroResposta);
+
         }
-
-        service.deletar(autorOptional.get());
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -81,7 +96,8 @@ public class AutorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable("id") String id, @RequestBody AutorDTO dto){
+    public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody AutorDTO dto){
+    try{
         var idAutor = UUID.fromString(id);
         Optional<Autor> autorOptional = service.obterPorId(idAutor);
 
@@ -97,6 +113,11 @@ public class AutorController {
         service.atualizar(autor);
 
         return ResponseEntity.noContent().build();
+
+    }catch (RegistroDuplicadoException e){
+        var erroDTO = ErroResposta.conflito(e.getMessage());
+        return ResponseEntity.status(erroDTO.status()).body(erroDTO);
+    }
 
     }
 
