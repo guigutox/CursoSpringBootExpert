@@ -7,6 +7,7 @@ import io.github.guigutox.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import io.github.guigutox.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.guigutox.libraryapi.model.Autor;
 import io.github.guigutox.libraryapi.service.AutorService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AutorController {
 
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody AutorDTO autor){
+    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO autor){
     try{
         Autor autorEntidade = autor.mapearParaAutor();
         service.salvar(autorEntidade);
