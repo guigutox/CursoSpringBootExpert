@@ -3,14 +3,16 @@ package io.github.guigutox.libraryapi.controller.dto;
 import io.github.guigutox.libraryapi.model.Autor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Past;
 
 
 import java.time.LocalDate;
 
 public record AutorDTO(
-        @NotBlank(message = "Campo obrigatorio") String nome,
-        @NotNull(message = "Campo obrigatorio") LocalDate dataNascimento,
-        @NotBlank(message = "Campo obrigatorio") String nacionalidade) {
+        @NotBlank(message = "Campo obrigatorio") @Size(min = 2, max = 100, message = "Campo fora do tamanho padrao") String nome,
+        @NotNull(message = "Campo obrigatorio") @Past(message = "Nao pode ser uma data fatura") LocalDate dataNascimento,
+        @NotBlank(message = "Campo obrigatorio") @Size(max = 50, min = 2, message = "Campo fora do tamanho padrao") String nacionalidade) {
 
     public Autor mapearParaAutor(){
         Autor autor = new Autor();

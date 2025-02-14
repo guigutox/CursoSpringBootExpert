@@ -54,7 +54,7 @@ public class AutorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> obterDetalhes(@PathVariable("id") String id){
+    public ResponseEntity<Object> obterDetalhes(@PathVariable("id") @Valid String id){
         var idAutor = UUID.fromString(id);
         Optional<Autor> autorOptional = service.obterPorId(idAutor);
         if(autorOptional.isPresent()){
@@ -67,7 +67,7 @@ public class AutorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletar(@PathVariable("id") String id){
+    public ResponseEntity<Object> deletar(@PathVariable("id") @Valid String id){
         try {
             var idAutor = UUID.fromString(id);
             Optional<Autor> autorOptional = service.obterPorId(idAutor);
@@ -90,7 +90,7 @@ public class AutorController {
              @RequestParam(value = "nome", required = false) String nome,
              @RequestParam(value = "nacionalidade", required = false) String nacionalidade){
 
-        List<Autor> resultado = service.pesquisa(nome, nacionalidade);
+        List<Autor> resultado = service.pesquisaByExample(nome, nacionalidade);
         List<AutorDTO> lista = resultado.stream().map(autor -> new AutorDTO(autor.getNome(), autor.getDataNascimento(), autor.getNacionalidade())).collect(Collectors.toList());
 
         return ResponseEntity.ok(lista);
