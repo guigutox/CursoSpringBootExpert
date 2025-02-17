@@ -3,15 +3,20 @@ package io.github.guigutox.libraryapi.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "livro")
 @Data //Tras metodos getters, setters, to string, equalas e hashcode, required args constructor de uma vez so
 @ToString(exclude = "autor") //Serve para que o autor não seja impresso no toString
+@EntityListeners(AuditingEntityListener.class)
 public class Livro {
 
     @Id
@@ -43,6 +48,19 @@ public class Livro {
 
     @JoinColumn(name = "id_autor")
     private Autor autor;
+
+    @CreatedDate
+    @Column(name="data_cadastro")
+    private LocalDateTime dataCadastro;
+
+    @LastModifiedDate
+    @Column(name="data_atualizacao")
+    private LocalDateTime dataAtualizacao;
+
+
+    @Column(name="id_usuario")
+    private UUID idUsuario;
+
 
 
 
